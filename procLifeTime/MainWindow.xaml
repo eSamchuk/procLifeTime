@@ -5,8 +5,204 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:procLifeTime"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="483" Width="1214">
+
+    <Window.Resources>
+
+        <DataTemplate x:Key="lbTemplate">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=DataContext.CurrProcc.Name}"/>
+                <TextBlock Margin="5, 0, 0, 0" Text="{Binding RelativeSource={RelativeSource AncestorType={x:Type Window}}, Path=DataContext.CurrProcc.Status}"/>
+                <TextBlock>%</TextBlock>
+            </StackPanel>
+        </DataTemplate>
+
+    </Window.Resources>
+    
+    
     <Grid>
-        
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="5*"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+
+
+            <DockPanel Grid.Column="0">
+                <TextBlock TextAlignment="Center" DockPanel.Dock="Top">Waiting</TextBlock>
+                <ListBox DockPanel.Dock="Top" Margin="3"
+                         Name="lbWaiting"
+                         ItemsSource="{Binding Path=WaitingProcesses}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Path=Name}"/>
+                                <TextBlock Margin="5, 0, 0, 0" Text="{Binding Path=Status}"/>
+                                <TextBlock>%</TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+
+            </DockPanel>
+
+
+            <DockPanel Grid.Column="1">
+                <TextBlock TextAlignment="Center" DockPanel.Dock="Top">Working</TextBlock>
+                <ListBox DockPanel.Dock="Top"
+                     Margin="3"
+                     Name="lbWorking"
+                     ItemsSource="{Binding Path=WorkingProcesses}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Path=Name}"/>
+                            <TextBlock Margin="5, 0, 0, 0" Text="{Binding Path=Status}"/>
+                            <TextBlock>%</TextBlock>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            </DockPanel>
+
+
+            <DockPanel Grid.Column="2">
+                <TextBlock TextAlignment="Center" DockPanel.Dock="Top">Done</TextBlock>
+                <ListBox DockPanel.Dock="Top"
+                         Margin="3"
+                         Name="lbCompleted"
+                         ItemsSource="{Binding Path=CompletedProcesses}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Path=Name}"/>
+                            <TextBlock Margin="5, 0, 0, 0" Text="{Binding Path=Status}"/>
+                            <TextBlock>%</TextBlock>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            </DockPanel>
+
+
+            <DockPanel Grid.Column="3">
+                <TextBlock TextAlignment="Center" DockPanel.Dock="Top">All</TextBlock>
+
+                <ListBox Margin="3"
+                         Name="lbAll"
+                         DockPanel.Dock="Top"
+                         ItemsSource="{Binding Path=ProcList}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Path=Name}"/>
+                                <TextBlock Margin="5, 0, 0, 0" Text="{Binding Path=Status}"/>
+                                <TextBlock>%</TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+
+
+        </Grid>
+
+        <Grid Grid.Row="1">
+
+            <StackPanel Orientation="Horizontal">
+
+
+                <Button Name="btStart"
+                        Content="Start"
+                        Width="75"
+                        Height="25"
+                        Margin="75, 0, 3, 3"
+                        Command="{Binding StartProcess}"/>
+
+                <Button Name="btAbort"
+                        Content="Abort all"
+                        Width="75"
+                        Height="25"
+                        Margin="75, 0, 3, 3"
+                       Click="btAbort_Click"/>
+
+                <Button Name="btClear"
+                        Content="Clear"
+                        Width="75"
+                        Height="25"
+                        Margin="75, 0, 3, 3"
+                       Click="btClear_Click"/>
+
+                <TextBlock Width="75"
+                           Height="25"
+                           Margin= "75, 3, 3, 3"
+                           Text="Max count"
+                           TextAlignment="Center"
+                           VerticalAlignment="Center"/>
+
+                <TextBox Name="tbMaxCount"
+                         Width="50"
+                         Height="25"
+                         Margin= "5, 0, 3, 3"/>
+
+                <Grid>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Orientation="Horizontal">
+                        <TextBlock Margin="18, 3, 3, 3" Text="by Count()"/>
+                        <TextBlock Margin="15, 3, 3, 3" Text="Waiting"/>
+                        <TextBlock Margin="15, 3, 3, 3" Text="{Binding waitCount}"/>
+                        <TextBlock Margin="15, 3, 3, 3" Text="Working"/>
+                        <TextBlock Margin="15, 3, 3, 3" Text="{Binding workCount}"/>
+                        <TextBlock Margin="15, 3, 3, 3" Text="Done"/>
+                        <TextBlock Margin="15, 3, 3, 3" Text="{Binding doneCount}"/>
+                        <TextBlock Margin="15, 3, 3, 3" Text="All"/>
+                        <TextBlock Margin="15, 3, 3, 3" Text="{Binding AllCount}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Orientation="Horizontal">
+                        <TextBlock Margin="15, 3, 3, 3" Text="Collections"/>
+                        <TextBlock Margin="15, 3, 3, 3" Text="Waiting"/>
+                        <TextBlock Margin="15, 3, 3, 3" Text="{Binding WaitingProcesses.Count}"/>
+                        <TextBlock Margin="15, 3, 3, 3" Text="Working"/>
+                        <TextBlock Margin="15, 3, 3, 3" Text="{Binding WorkingProcesses.Count}"/>
+                        <TextBlock Margin="15, 3, 3, 3" Text="Done"/>
+                        <TextBlock Margin="15, 3, 3, 3" Text="{Binding CompletedProcesses.Count}"/>
+                        <TextBlock Margin="15, 3, 3, 3" Text="All"/>
+                        <TextBlock Margin="15, 3, 3, 3" Text="{Binding ProcList.Count}"/>
+                    </StackPanel>
+
+
+
+
+
+
+
+                </Grid>
+                
+                
+              
+                
+            </StackPanel>
+            
+            
+        </Grid>
+
     </Grid>
 </Window>
+
+    
