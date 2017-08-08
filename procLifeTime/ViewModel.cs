@@ -41,22 +41,11 @@ namespace procLifeTime
         {
             get
             {
-                return _workingProcesses;
+                return _waitingProcesses;
             }
             set
             {
                 _waitingProcesses = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private int _workCount;
-        public int workCount
-        {
-            get { return _workCount; }
-            set
-            {
-                _workCount = value;
                 OnPropertyChanged();
             }
         }
@@ -74,31 +63,6 @@ namespace procLifeTime
                 OnPropertyChanged();
             }
         }
-
-        private int _doneCount;
-        public int doneCount
-        {
-            get { return _doneCount; }
-            set
-            {
-                _doneCount = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private int _allCount;
-        public int AllCount
-        {
-            get { return ProcList.Count; }
-            set
-            {
-                _allCount = value;
-                OnPropertyChanged();
-            }
-        }
-
-
-
 
         private ObservableCollection<Process>_completedProcesses;
         public ObservableCollection<Process> CompletedProcesses
@@ -127,18 +91,15 @@ namespace procLifeTime
             }
         }
 
-        private ObservableCollection<String> _log;
-        public ObservableCollection<String> Log
-        {
-            get { return _log; }
-            set { _log = value; OnPropertyChanged(); }
-        }
-
         public ViewModel()
         {
-            Semaphore = new Semaphore(5, 10, Guid.NewGuid().ToString());
+            Semaphore = new Semaphore(1, 10, Guid.NewGuid().ToString());
             ProcList = new ObservableCollection<Process>();
             StartProcess = new relayCommand(param => this.AddProcess());
+
+            WorkingProcesses = new ObservableCollection<Process>();
+            WaitingProcesses = new ObservableCollection<Process>();
+            CompletedProcesses = new ObservableCollection<Process>();
         }
         private void AddProcess()
         {
@@ -151,20 +112,39 @@ namespace procLifeTime
         {
             Process pr = p as Process;
 
+            System.Windows.Application.Current.Dispatcher.Invoke((Action)(() =>
+            {
+                WaitingProcesses.Add(pr);
+            }));
+
+
             Semaphore.WaitOne();
 
-            UpdateLists(pr);
+            System.Windows.Application.Current.Dispatcher.Invoke((Action)(() =>
+            {
+                WaitingProcesses.Remove(pr);
+                WorkingProcesses.Add(pr);
+            }));
+
 
             while (pr.Status < 10)
             {
                 Thread.Sleep(250);
                 pr.Status++;
-                UpdateLists(pr);
             }
 
-            UpdateLists(pr);
+            System.Windows.Application.Current.Dispatcher.Invoke((Action)(() =>
+            {
+                WorkingProcesses.Remove(pr);
+            }));
 
             Semaphore.Release();
+
+            System.Windows.Application.Current.Dispatcher.Invoke((Action)(() =>
+            {
+                CompletedProcesses.Add(pr);
+            }));
+
         }
       
         public void stop()
@@ -186,21 +166,6 @@ namespace procLifeTime
             Semaphore.Release();
 
 
-        }
-
-        private void UpdateLists(Process p)
-        {
-            lock (this)
-            {
-                AllCount = ProcList.Count();
-
-                WaitingProcesses = new ObservableCollection<Process>(ProcList.Where(x => x.Status == 0).ToList());
-                waitCount = (WaitingProcesses == null) ? 0 : WaitingProcesses.Count();
-                WorkingProcesses = new ObservableCollection<Process>(ProcList.Where(x => x.Status < 10 && x.Status >= 1).ToList());
-                workCount = WorkingProcesses.Count();
-                CompletedProcesses = new ObservableCollection<Process>(ProcList.Where(x => x.Status == 10).ToList());
-                doneCount = CompletedProcesses.Count();
-            }
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
